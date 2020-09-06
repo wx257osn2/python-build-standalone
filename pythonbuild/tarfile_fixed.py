@@ -1057,7 +1057,10 @@ class TarInfo(object):
         obj = cls()
         obj.name = nts(buf[0:100], encoding, errors)
         obj.mode = nti(buf[100:108])
-        obj.uid = nti(buf[108:116])
+        try:
+            obj.uid = nti(buf[108:116])
+        except InvalidHeaderError:
+            obj.uid = 0
         obj.gid = nti(buf[116:124])
         obj.size = nti(buf[124:136])
         obj.mtime = nti(buf[136:148])
