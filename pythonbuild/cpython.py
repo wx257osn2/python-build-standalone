@@ -5,7 +5,7 @@
 import os
 import pathlib
 import re
-import tarfile
+from . import tarfile_fixed as tarfile
 
 from .downloads import DOWNLOADS
 

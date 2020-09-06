@@ -8,7 +8,7 @@ import os
 import pathlib
 import subprocess
 import sys
-import tarfile
+from . import tarfile_fixed as tarfile
 import zipfile
 import urllib.request
 
