@@ -8,7 +8,7 @@ import io
 import os
 import pathlib
 import shutil
-import tarfile
+from . import tarfile_fixed as tarfile
 import tempfile
 
 from .docker import container_exec, container_get_archive, copy_file_to_container

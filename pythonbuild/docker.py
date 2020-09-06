@@ -6,7 +6,7 @@ import contextlib
 import io
 import operator
 import pathlib
-import tarfile
+from . import tarfile_fixed as tarfile
 
 import docker
 import jinja2
