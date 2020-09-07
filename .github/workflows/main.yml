@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-cpython38-linux:
+  build-cpython38-linux-1:
     runs-on: ubuntu-20.04
 
     steps:
@@ -17,11 +17,69 @@ jobs:
       run: |
         export PYBUILD_RELEASE_TAG=$(date --utc '+%Y%m%dT%H%M')
         sudo apt-get install python3-venv
+        sudo timeout 140m ./build-linux.py --target-triple x86_64-unknown-linux-musl --python cpython-3.8 --optimizations lto --libressl || :
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: build1
+        path: |
+          build/image-*
+          build/*.tar
+          build/versions
+        if-no-files-found: error
+
+  build-cpython38-linux-2:
+    needs: build-cpython38-linux-1
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: build1
+        path: build/
+
+    - name: restart build
+      run: |
+        export PYBUILD_RELEASE_TAG=$(date --utc '+%Y%m%dT%H%M')
+        sudo apt-get install python3-venv
+        touch build/*
+        sudo timeout 345m ./build-linux.py --target-triple x86_64-unknown-linux-musl --python cpython-3.8 --optimizations lto --libressl || :
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: build2
+        path: |
+          build/image-*
+          build/*.tar
+          build/versions
+        if-no-files-found: error
+
+  build-cpython38-linux-3:
+    needs: build-cpython38-linux-2
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: build2
+        path: build/
+
+    - name: restart build
+      run: |
+        export PYBUILD_RELEASE_TAG=$(date --utc '+%Y%m%dT%H%M')
+        sudo apt-get install python3-venv
+        touch build/*
         sudo ./build-linux.py --target-triple x86_64-unknown-linux-musl --python cpython-3.8 --optimizations lto --libressl
 
     - uses: actions/upload-artifact@v2
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       with:
-        name: cpython-3.8.5-x86_64-unknown-linux-musl-lto
+        name: cpython-3.8.5-x86_64-unknown-linux-musl-lto.tar.zst
         path: dist/cpython-3.8.5-x86_64-unknown-linux-musl-lto-*.tar.zst
         if-no-files-found: error
